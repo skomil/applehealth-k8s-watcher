@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: health-importer-poll
+spec:
+  template:
+    spec:
+      containers:
+         - name: health-importer
+           image: docker-repo.fios-router.home/health-importer
+           volumeMounts:
+           - mountPath: /data
+             name: share
+           env:
+           - name: IMPORT_PATH
+             value: "/data"
+           - name: INFLUX_HOST
+             value: "192.168.1.11"
+           - name: INFLUX_USER
+             valueFrom:
+               secretKeyRef:
+                 name: health-secrets
+                 key: influx-user
+           - name: INFLUX_PASS
+             valueFrom:
+               secretKeyRef:
+                 name: health-secrets
+                 key: influx-pass
+           resources:
+             limits:
+               memory: "3Gi"
+               cpu: "1"
+               ephemeral-storage: 3Gi
+             requests:
+               memory: "1500Mi"
+               cpu: "1"
+               ephemeral-storage: 3Gi
+      restartPolicy: Never
+      volumes:
+      - name: share
+        hostPath:
+          path: /shared
+  backoffLimit: 2

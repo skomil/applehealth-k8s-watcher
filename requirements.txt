@@ -1,0 +1,2 @@
+-i https://pypi.python.org/simple
+kubernetes == 23.3.0
